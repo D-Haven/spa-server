@@ -1,0 +1,9 @@
+server:
+  host:
+  port: 8443
+  default: index.html
+  compress: true
+  sitePath: ./www
+  tls:
+    certificate: server.crt
+    key: server.key
