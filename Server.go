@@ -9,6 +9,12 @@ import (
 	"path"
 )
 
+func CheckError(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 type Config struct {
 	Server struct {
 		// Host is the server host name
@@ -56,7 +62,8 @@ func ReadConfig(configPath string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
+
+	defer CheckError(file.Close())
 
 	// Init new YAML decode
 	d := yaml.NewDecoder(file)
@@ -75,9 +82,7 @@ func ReadConfig(configPath string) (*Config, error) {
 
 func ValidateConfigPath(path string) error {
 	fileInfo, err := os.Stat(path)
-	if err != nil {
-		return err
-	}
+	CheckError(err)
 
 	if fileInfo.IsDir() {
 		return fmt.Errorf("'%s' is a directory, not a normal file", path)
@@ -88,9 +93,7 @@ func ValidateConfigPath(path string) error {
 
 func ValidateConfig(config *Config) error {
 	fileInfo, err := os.Stat(config.Server.SitePath)
-	if err != nil {
-		return err
-	}
+	CheckError(err)
 
 	if !fileInfo.IsDir() {
 		return fmt.Errorf("'%s' is not a directory, cannot start server", config.Server.SitePath)
@@ -107,10 +110,7 @@ func ValidateConfig(config *Config) error {
 
 	defaultFile := path.Join(config.Server.SitePath, config.Server.Default[1:len(config.Server.Default)])
 	fileInfo, err = os.Stat(defaultFile)
-
-	if err != nil {
-		return err
-	}
+	CheckError(err)
 
 	if fileInfo.IsDir() {
 		return fmt.Errorf("no default file exists, invalid configuration: '%s'", defaultFile)
@@ -121,16 +121,9 @@ func ValidateConfig(config *Config) error {
 
 func main() {
 	config, err := ReadConfig("./config.yaml")
+	CheckError(err)
 
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = ValidateConfig(config)
-
-	if err != nil {
-		log.Fatal(err)
-	}
+	CheckError(ValidateConfig(config))
 
 	fmt.Printf("Starting server at port %s\n", config.Server.Port)
 	fmt.Printf("    default path: %s\n", config.Server.Default)
@@ -148,7 +141,5 @@ func main() {
 		Handler: handler,
 	}
 
-	if err := server.ListenAndServeTLS(config.Server.TLS.CertFile, config.Server.TLS.KeyFile); err != nil {
-		log.Fatal(err)
-	}
+	CheckError(server.ListenAndServeTLS(config.Server.TLS.CertFile, config.Server.TLS.KeyFile))
 }

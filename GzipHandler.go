@@ -12,24 +12,27 @@ type GzipResponseWriter struct {
 	http.ResponseWriter
 }
 
-func (writer GzipResponseWriter) Write(b []byte) (int, error) {
+func (writer GzipResponseWriter) Write(content []byte) (int, error) {
 	if "" == writer.Header().Get("Content-Type") {
 		// If no content type, apply sniffing algorithm to un-gzipped body.
-		writer.Header().Set("Content-Type", http.DetectContentType(b))
+		writer.Header().Set("Content-Type", http.DetectContentType(content))
 	}
-	return writer.Writer.Write(b)
+
+	return writer.Writer.Write(content)
 }
 
-func GzipHandler(fn http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if !strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
-			fn(w, r)
+func GzipHandler(handler http.HandlerFunc) http.HandlerFunc {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		if !strings.Contains(request.Header.Get("Accept-Encoding"), "gzip") {
+			handler(writer, request)
 			return
 		}
-		w.Header().Set("Content-Encoding", "gzip")
-		gz := gzip.NewWriter(w)
-		defer gz.Close()
-		gzr := GzipResponseWriter{Writer: gz, ResponseWriter: w}
-		fn(gzr, r)
+
+		writer.Header().Set("Content-Encoding", "gzip")
+		compressor := gzip.NewWriter(writer)
+		defer CheckError(compressor.Close())
+
+		gzipWriter := GzipResponseWriter{Writer: compressor, ResponseWriter: writer}
+		handler(gzipWriter, request)
 	}
 }
