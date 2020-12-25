@@ -119,14 +119,22 @@ func ValidateConfig(config *Config) error {
 	return nil
 }
 
+func ShowLogo() {
+	fmt.Println("  .dBBBBP dBBBBBb dBBBBBb       .dBBBBP   dBBBP dBBBBBb  dBP dP dBBBP dBBBBBb")
+	fmt.Println("  BP          dB'      BB       BP                  dBP                   dBP")
+	fmt.Println("  `BBBBb  dBBBP'   dBP BB       `BBBBb  dBBP    dBBBBK dB .BP dBBP    dBBBBK ")
+	fmt.Println("     dBP dBP      dBP  BB          dBP dBP     dBP  BB BB.BP dBP     dBP  BB ")
+	fmt.Println("dBBBBP' dBP      dBBBBBBB     dBBBBP' dBBBBP  dBP  dB' BBBP dBBBBP  dBP  dB' ")
+	fmt.Println()
+}
+
 func main() {
 	config, err := ReadConfig("./config.yaml")
 	CheckError(err)
-
 	CheckError(ValidateConfig(config))
 
-	fmt.Printf("Starting server at port %s\n", config.Server.Port)
-	fmt.Printf("    default path: %s\n", config.Server.Default)
+	ShowLogo()
+	fmt.Printf("    Starting server at port %s\n", config.Server.Port)
 
 	fileServer := http.FileServer(http.Dir(config.Server.SitePath))
 	redirectDefault := NotFoundRedirectHandler(config.Server.Default, fileServer)
