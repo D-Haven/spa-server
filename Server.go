@@ -63,7 +63,7 @@ func ReadConfig(configPath string) (*Config, error) {
 		return nil, err
 	}
 
-	defer CheckError(file.Close())
+	defer func() { CheckError(file.Close()) }()
 
 	// Init new YAML decode
 	d := yaml.NewDecoder(file)
