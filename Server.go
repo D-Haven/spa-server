@@ -98,7 +98,10 @@ func ReadConfig(configPath string) (*Config, error) {
 
 func ValidateConfigPath(path string) error {
 	fileInfo, err := os.Stat(path)
-	CheckError(err)
+	if err != nil {
+		// File doesn't exist will use defaults
+		return err
+	}
 
 	if fileInfo.IsDir() {
 		return fmt.Errorf("'%s' is a directory, not a normal file", path)
