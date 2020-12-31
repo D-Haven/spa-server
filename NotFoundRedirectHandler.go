@@ -21,6 +21,30 @@ import (
 	"net/http"
 )
 
+// Browsers will pull favicon.ico whether you have a link to it or not
+// Apple devices will pull site.webmanifest
+// Search engines look for robots.txt
+// For others, see https://www.webfx.com/blog/web-design/5-web-files-that-will-improve-your-website/
+// All of these paths should return 404 if the file does not exist rather than a redirect
+var protectedPaths = []string{
+	"/favicon.ico",
+	"/robots.txt",
+	"/site.webmanifest",
+	"/sitemap.xml",
+	"/dublin.rdf",
+	"/search.xml",
+}
+
+func isIn(value string, array []string) bool {
+	for _, v := range array {
+		if v == value {
+			return true
+		}
+	}
+
+	return false
+}
+
 func NotFoundRedirectHandler(redirectTarget string, handler http.Handler) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		wrapper := &NotFoundRedirectWrapper{
@@ -30,7 +54,7 @@ func NotFoundRedirectHandler(redirectTarget string, handler http.Handler) http.H
 
 		handler.ServeHTTP(wrapper, request)
 
-		if wrapper.status == http.StatusNotFound && wrapper.path != "/favicon.ico" {
+		if wrapper.status == http.StatusNotFound && !isIn(wrapper.path, protectedPaths) {
 			log.Printf("Redirecting %s to %s.", request.RequestURI, redirectTarget)
 			http.Redirect(writer, request, redirectTarget, http.StatusSeeOther)
 		}
@@ -46,13 +70,13 @@ type NotFoundRedirectWrapper struct {
 func (wrapper *NotFoundRedirectWrapper) WriteHeader(status int) {
 	wrapper.status = status
 
-	if status != http.StatusNotFound || wrapper.path == "/favicon.ico" {
+	if status != http.StatusNotFound || isIn(wrapper.path, protectedPaths) {
 		wrapper.ResponseWriter.WriteHeader(status)
 	}
 }
 
 func (wrapper *NotFoundRedirectWrapper) Write(content []byte) (int, error) {
-	if wrapper.status != http.StatusNotFound || wrapper.path == "/favicon.ico" {
+	if wrapper.status != http.StatusNotFound || isIn(wrapper.path, protectedPaths) {
 		return wrapper.ResponseWriter.Write(content)
 	}
 

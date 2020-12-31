@@ -23,7 +23,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path"
 )
 
 func CheckError(err error) {
@@ -39,9 +38,6 @@ type Config struct {
 
 		// Port is the local machine TCP Port to bind the HTTP Server to
 		Port string `yaml:"port"`
-
-		// Default is the default path to redirect responses to
-		Default string `yaml:"default"`
 
 		// Compress is a flag for if results should be GZip compressed
 		Compress bool `yaml:"compress"`
@@ -66,7 +62,6 @@ func ReadConfig(configPath string) (*Config, error) {
 
 		config.Server.Port = "8443"
 		config.Server.Compress = false
-		config.Server.Default = "/index.html"
 		config.Server.SitePath = "./www"
 		config.Server.TLS.CertFile = "./server.crt"
 		config.Server.TLS.KeyFile = "./server.key"
@@ -88,10 +83,6 @@ func ReadConfig(configPath string) (*Config, error) {
 	// Start YAML decoding from file
 	if err := d.Decode(&config); err != nil {
 		return nil, err
-	}
-
-	if config.Server.Default[:1] != "/" {
-		config.Server.Default = "/" + config.Server.Default
 	}
 
 	return config, nil
@@ -119,23 +110,6 @@ func ValidateConfig(config *Config) error {
 		return fmt.Errorf("'%s' is not a directory, cannot start server", config.Server.SitePath)
 	}
 
-	if len(config.Server.Default) <= 1 {
-		config.Server.Default = "/index.html"
-		log.Println("No default path provided, using '/index.html'")
-	}
-
-	if config.Server.Default[:1] != "/" {
-		config.Server.Default = "/" + config.Server.Default
-	}
-
-	defaultFile := path.Join(config.Server.SitePath, config.Server.Default[1:len(config.Server.Default)])
-	fileInfo, err = os.Stat(defaultFile)
-	CheckError(err)
-
-	if fileInfo.IsDir() {
-		return fmt.Errorf("no default file exists, invalid configuration: '%s'", defaultFile)
-	}
-
 	return nil
 }
 
@@ -154,7 +128,7 @@ func main() {
 	fmt.Printf("    Starting server at port %s\n", config.Server.Port)
 
 	fileServer := http.FileServer(http.Dir(config.Server.SitePath))
-	redirectDefault := NotFoundRedirectHandler(config.Server.Default, fileServer)
+	redirectDefault := NotFoundRedirectHandler("/", fileServer)
 	handler := redirectDefault
 
 	if config.Server.Compress {
