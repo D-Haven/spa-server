@@ -19,11 +19,19 @@ package main
 import (
 	"fmt"
 	"github.com/common-nighthawk/go-figure"
+	"github.com/heptiolabs/healthcheck"
+	"golang.org/x/net/context"
 	"gopkg.in/yaml.v3"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 )
+
+// TODO: finish this https://blog.gopheracademy.com/advent-2017/kubernetes-ready-service/
+
+const appName = "SPA server"
 
 func CheckError(err error) {
 	if err != nil {
@@ -114,7 +122,7 @@ func ValidateConfig(config *Config) error {
 }
 
 func ShowLogo() {
-	logo := figure.NewFigure("SPA server", "trek", true)
+	logo := figure.NewFigure(appName, "trek", true)
 	logo.Print()
 	fmt.Println()
 }
@@ -125,7 +133,10 @@ func main() {
 	CheckError(ValidateConfig(config))
 
 	ShowLogo()
-	fmt.Printf("    Starting server at port %s\n", config.Server.Port)
+
+	log.Printf("Starting %s at port %s", appName, config.Server.Port)
+	log.Print("K8s Readiness Check: /ready")
+	log.Print("K8s Liveness Check: /live")
 
 	fileServer := http.FileServer(http.Dir(config.Server.SitePath))
 	redirectDefault := NotFoundRedirectHandler("/", fileServer)
@@ -135,10 +146,37 @@ func main() {
 		handler = GzipHandler(redirectDefault)
 	}
 
+	health := healthcheck.NewHandler()
+	health.AddLivenessCheck("go-routinethreshold", healthcheck.GoroutineCountCheck(100))
+
+	multiplexHandler := http.NewServeMux()
+	multiplexHandler.Handle("/live", health)
+	multiplexHandler.Handle("/ready", health)
+	multiplexHandler.Handle("/", handler)
+
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
+
 	server := &http.Server{
 		Addr:    config.Server.Host + ":" + config.Server.Port,
-		Handler: handler,
+		Handler: multiplexHandler,
 	}
 
-	CheckError(server.ListenAndServeTLS(config.Server.TLS.CertFile, config.Server.TLS.KeyFile))
+	go func() {
+		CheckError(server.ListenAndServeTLS(config.Server.TLS.CertFile, config.Server.TLS.KeyFile))
+	}()
+
+	log.Printf("%s started", appName)
+
+	killSignal := <-interrupt
+	switch killSignal {
+	case os.Interrupt:
+		log.Print("Received SIGINT...")
+	case syscall.SIGTERM:
+		log.Print("Received SIGTERM...")
+	}
+
+	log.Printf("%s is shutting down...", appName)
+	CheckError(server.Shutdown(context.Background()))
+	log.Print("Done")
 }
