@@ -18,6 +18,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/common-nighthawk/go-figure"
 	"gopkg.in/yaml.v3"
 	"log"
 	"net/http"
@@ -139,11 +140,8 @@ func ValidateConfig(config *Config) error {
 }
 
 func ShowLogo() {
-	fmt.Println("  .dBBBBP dBBBBBb dBBBBBb       .dBBBBP   dBBBP dBBBBBb  dBP dP dBBBP dBBBBBb")
-	fmt.Println("  BP          dB'      BB       BP                  dBP                   dBP")
-	fmt.Println("  `BBBBb  dBBBP'   dBP BB       `BBBBb  dBBP    dBBBBK dB .BP dBBP    dBBBBK ")
-	fmt.Println("     dBP dBP      dBP  BB          dBP dBP     dBP  BB BB.BP dBP     dBP  BB ")
-	fmt.Println("dBBBBP' dBP      dBBBBBBB     dBBBBP' dBBBBP  dBP  dB' BBBP dBBBBP  dBP  dB' ")
+	logo := figure.NewFigure("SPA server", "trek", true)
+	logo.Print()
 	fmt.Println()
 }
 
