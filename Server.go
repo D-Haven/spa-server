@@ -35,12 +35,6 @@ import (
 
 const appName = "SPA server"
 
-func CheckError(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
 type Config struct {
 	Server struct {
 		// Host is the server host name
@@ -83,7 +77,7 @@ func ReadConfig(configPath string) (*Config, error) {
 		return nil, err
 	}
 
-	defer func() { CheckError(file.Close()) }()
+	defer func() { handlers.CheckError(file.Close()) }()
 
 	// Init new YAML decode
 	d := yaml.NewDecoder(file)
@@ -112,14 +106,14 @@ func ValidateConfigPath(path string) error {
 
 func ValidateConfig(config *Config) error {
 	fileInfo, err := os.Stat(config.Server.SitePath)
-	CheckError(err)
+	handlers.CheckError(err)
 
 	if !fileInfo.IsDir() {
 		return fmt.Errorf("'%s' is not a directory, cannot start server", config.Server.SitePath)
 	}
 
-	CheckError(ValidateOptionalFile(config.Server.TLS.KeyFile))
-	CheckError(ValidateOptionalFile(config.Server.TLS.CertFile))
+	handlers.CheckError(ValidateOptionalFile(config.Server.TLS.KeyFile))
+	handlers.CheckError(ValidateOptionalFile(config.Server.TLS.CertFile))
 
 	return nil
 }
@@ -127,7 +121,7 @@ func ValidateConfig(config *Config) error {
 func ValidateOptionalFile(path string) error {
 	if len(path) > 0 {
 		fileInfo, err := os.Stat(path)
-		CheckError(err)
+		handlers.CheckError(err)
 
 		if fileInfo.IsDir() {
 			return fmt.Errorf("'%s' is directory, not a file", path)
@@ -145,8 +139,8 @@ func ShowLogo() {
 
 func main() {
 	config, err := ReadConfig("./config.yaml")
-	CheckError(err)
-	CheckError(ValidateConfig(config))
+	handlers.CheckError(err)
+	handlers.CheckError(ValidateConfig(config))
 
 	ShowLogo()
 
@@ -161,7 +155,7 @@ func main() {
 	handler := redirectDefault
 
 	if config.Server.Compress {
-		handler = GzipHandler(redirectDefault)
+		handler = handlers.GzipHandler(redirectDefault)
 	}
 
 	health := healthcheck.NewHandler()
@@ -184,9 +178,9 @@ func main() {
 		useTLS := len(config.Server.TLS.CertFile) != 0 && len(config.Server.TLS.KeyFile) != 0
 
 		if useTLS {
-			CheckError(server.ListenAndServeTLS(config.Server.TLS.CertFile, config.Server.TLS.KeyFile))
+			handlers.CheckError(server.ListenAndServeTLS(config.Server.TLS.CertFile, config.Server.TLS.KeyFile))
 		} else {
-			CheckError(server.ListenAndServe())
+			handlers.CheckError(server.ListenAndServe())
 		}
 	}()
 
@@ -201,6 +195,6 @@ func main() {
 	}
 
 	log.Printf("%s is shutting down...", appName)
-	CheckError(server.Shutdown(context.Background()))
+	handlers.CheckError(server.Shutdown(context.Background()))
 	log.Print("Done")
 }
