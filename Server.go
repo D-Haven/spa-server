@@ -17,9 +17,9 @@
 package main
 
 import (
+	"d-haven.org/spa-server/handlers"
+	"d-haven.org/spa-server/version"
 	"fmt"
-	"github.com/D-Haven/spa-server/version"
-	"github.com/D-haven/spa-server/handlers"
 	"github.com/common-nighthawk/go-figure"
 	"github.com/heptiolabs/healthcheck"
 	"golang.org/x/net/context"
@@ -57,6 +57,12 @@ type Config struct {
 	} `yaml:"server"`
 }
 
+func CheckError(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func ReadConfig(configPath string) (*Config, error) {
 	// Create config structure
 	config := &Config{}
@@ -77,7 +83,7 @@ func ReadConfig(configPath string) (*Config, error) {
 		return nil, err
 	}
 
-	defer func() { handlers.CheckError(file.Close()) }()
+	defer func() { CheckError(file.Close()) }()
 
 	// Init new YAML decode
 	d := yaml.NewDecoder(file)
@@ -106,14 +112,14 @@ func ValidateConfigPath(path string) error {
 
 func ValidateConfig(config *Config) error {
 	fileInfo, err := os.Stat(config.Server.SitePath)
-	handlers.CheckError(err)
+	CheckError(err)
 
 	if !fileInfo.IsDir() {
 		return fmt.Errorf("'%s' is not a directory, cannot start server", config.Server.SitePath)
 	}
 
-	handlers.CheckError(ValidateOptionalFile(config.Server.TLS.KeyFile))
-	handlers.CheckError(ValidateOptionalFile(config.Server.TLS.CertFile))
+	CheckError(ValidateOptionalFile(config.Server.TLS.KeyFile))
+	CheckError(ValidateOptionalFile(config.Server.TLS.CertFile))
 
 	return nil
 }
@@ -121,7 +127,7 @@ func ValidateConfig(config *Config) error {
 func ValidateOptionalFile(path string) error {
 	if len(path) > 0 {
 		fileInfo, err := os.Stat(path)
-		handlers.CheckError(err)
+		CheckError(err)
 
 		if fileInfo.IsDir() {
 			return fmt.Errorf("'%s' is directory, not a file", path)
@@ -139,14 +145,14 @@ func ShowLogo() {
 
 func main() {
 	config, err := ReadConfig("./config.yaml")
-	handlers.CheckError(err)
-	handlers.CheckError(ValidateConfig(config))
+	CheckError(err)
+	CheckError(ValidateConfig(config))
 
 	ShowLogo()
 
-	fmt.Printf("Version %s - %s (%s)", version.Release, version.Commit, version.BuildTime)
+	fmt.Printf("Version %s - %s (%s)\n", version.Release, version.Commit, version.BuildTime)
 
-	log.Printf("Starting %s at port %s", appName, config.Server.Port)
+	log.Printf("Starting %s on port %s", appName, config.Server.Port)
 	log.Print("K8s Readiness Check: /ready")
 	log.Print("K8s Liveness Check: /live")
 
@@ -178,9 +184,9 @@ func main() {
 		useTLS := len(config.Server.TLS.CertFile) != 0 && len(config.Server.TLS.KeyFile) != 0
 
 		if useTLS {
-			handlers.CheckError(server.ListenAndServeTLS(config.Server.TLS.CertFile, config.Server.TLS.KeyFile))
+			CheckError(server.ListenAndServeTLS(config.Server.TLS.CertFile, config.Server.TLS.KeyFile))
 		} else {
-			handlers.CheckError(server.ListenAndServe())
+			CheckError(server.ListenAndServe())
 		}
 	}()
 
@@ -195,6 +201,6 @@ func main() {
 	}
 
 	log.Printf("%s is shutting down...", appName)
-	handlers.CheckError(server.Shutdown(context.Background()))
+	CheckError(server.Shutdown(context.Background()))
 	log.Print("Done")
 }

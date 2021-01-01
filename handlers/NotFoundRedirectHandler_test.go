@@ -18,10 +18,17 @@ package handlers
 
 import (
 	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
+
+func CheckError(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
 
 func TestWrapperRedirectsToRootIfNotFound(t *testing.T) {
 	req, err := http.NewRequest("GET", "/health-check", nil)

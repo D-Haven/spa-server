@@ -19,6 +19,7 @@ package handlers
 import (
 	"compress/gzip"
 	"io"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -46,7 +47,11 @@ func GzipHandler(handler http.HandlerFunc) http.HandlerFunc {
 
 		writer.Header().Set("Content-Encoding", "gzip")
 		compressor := gzip.NewWriter(writer)
-		defer func() { CheckError(compressor.Close()) }()
+		defer func() {
+			if err := compressor.Close(); err != nil {
+				log.Fatal(err)
+			}
+		}()
 
 		gzipWrapper := GzipResponseWrapper{Writer: compressor, ResponseWriter: writer}
 		handler(gzipWrapper, request)
