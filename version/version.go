@@ -17,10 +17,10 @@
 package version
 
 var (
+	// Release is the semantic version of the server
+	Release = "unset"
 	// BuildTime is when the server was built
 	BuildTime = "unset"
 	// Commit is the last commit hash when the server was built
 	Commit = "unset"
-	// Release is the semantic version of the server
-	Release = "unset"
 )
