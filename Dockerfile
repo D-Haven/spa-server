@@ -15,6 +15,7 @@ RUN go test
 FROM scratch
 
 COPY --from=builder /go/bin/spa-server /
+COPY config.yaml /
 
-EXPOSE 8443/tcp
+EXPOSE 443/tcp
 CMD ["/spa-server"]
