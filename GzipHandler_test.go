@@ -24,9 +24,8 @@ import (
 
 func TestWrapperAcceptsGzip(t *testing.T) {
 	req, err := http.NewRequest("GET", "/health-check", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
+	CheckError(err)
+
 	req.Header.Set("Accept-Encoding", "gzip, deflate")
 
 	rr := httptest.NewRecorder()
@@ -41,9 +40,7 @@ func TestWrapperAcceptsGzip(t *testing.T) {
 
 func TestWrapperDoesNotCompressIfRequestDoesNotAcceptIt(t *testing.T) {
 	req, err := http.NewRequest("GET", "/health-check", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
+	CheckError(err)
 
 	rr := httptest.NewRecorder()
 	handler := GzipHandler(func(w http.ResponseWriter, r *http.Request) {})

@@ -139,7 +139,7 @@ func main() {
 	log.Print("K8s Liveness Check: /live")
 
 	fileServer := http.FileServer(http.Dir(config.Server.SitePath))
-	redirectDefault := NotFoundRedirectHandler("/", fileServer)
+	redirectDefault := NotFoundRedirectHandler(fileServer)
 	handler := redirectDefault
 
 	if config.Server.Compress {

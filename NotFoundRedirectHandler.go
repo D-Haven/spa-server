@@ -24,14 +24,12 @@ import (
 // Browsers will pull favicon.ico whether you have a link to it or not
 // Apple devices will pull site.webmanifest
 // Search engines look for robots.txt
-// For others, see https://www.webfx.com/blog/web-design/5-web-files-that-will-improve-your-website/
 // All of these paths should return 404 if the file does not exist rather than a redirect
 var protectedPaths = []string{
 	"/favicon.ico",
 	"/robots.txt",
 	"/site.webmanifest",
 	"/sitemap.xml",
-	"/dublin.rdf",
 	"/search.xml",
 }
 
@@ -45,7 +43,7 @@ func isIn(value string, array []string) bool {
 	return false
 }
 
-func NotFoundRedirectHandler(redirectTarget string, handler http.Handler) http.HandlerFunc {
+func NotFoundRedirectHandler(handler http.Handler) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		wrapper := &NotFoundRedirectWrapper{
 			ResponseWriter: writer,
@@ -55,8 +53,8 @@ func NotFoundRedirectHandler(redirectTarget string, handler http.Handler) http.H
 		handler.ServeHTTP(wrapper, request)
 
 		if wrapper.status == http.StatusNotFound && !isIn(wrapper.path, protectedPaths) {
-			log.Printf("Redirecting %s to %s.", request.RequestURI, redirectTarget)
-			http.Redirect(writer, request, redirectTarget, http.StatusSeeOther)
+			log.Printf("Redirecting %s to /.", request.RequestURI)
+			http.Redirect(writer, request, "/", http.StatusSeeOther)
 		}
 	}
 }
