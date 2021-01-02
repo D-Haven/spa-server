@@ -2,7 +2,7 @@ Contributing to this project means that you agree to the terms of the Apache Sof
 and that the copyright for the code belongs to this project.  Each source file needs the following header:
 
 ````
-#region Copyright 2017 D-Haven.org
+#region Copyright ${year} D-Haven.org
 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,9 +18,3 @@ and that the copyright for the code belongs to this project.  Each source file n
 
 #endregion
 ````
-
-We go with standard Microsoft conventions for just about everything, except we don't add that silly "_" character in front
-of member variables.
-
-We use Git Flow, so if you are contributing a feature or bugfix, use the appropriate commands.
-See https://danielkummer.github.io/git-flow-cheatsheet/ for examples.
