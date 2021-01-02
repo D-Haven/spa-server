@@ -1,5 +1,4 @@
 FROM golang:1.15 AS builder
-ARG version=0.9.1
 
 WORKDIR /go/src/github.com/D-Haven/spa-server/
 COPY . .
@@ -7,10 +6,10 @@ COPY . .
 ENV CGO_ENABLED=0
 ENV GOOS=linux
 ENV GOARCH=amd64
-ENV RELEASE=${version}
 
 RUN go get -d -v
 RUN PROJECT=d-haven.org/spa-server && \
+    RELEASE=$(git describe --tags | sed 's/release\/\([0-9.]\+\)/\1/g') && \
     COMMIT=$(git rev-parse --short HEAD) && \
     BUILD_TIME=$(date -u '+%Y-%m-%dT%H:%M:%S') && \
     go build -ldflags "-X ${PROJECT}/version.Release=${RELEASE} \
