@@ -31,8 +31,6 @@ import (
 	"syscall"
 )
 
-// TODO: finish this https://blog.gopheracademy.com/advent-2017/kubernetes-ready-service/
-
 const appName = "SPA server"
 
 type Config struct {
