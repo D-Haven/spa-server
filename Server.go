@@ -142,13 +142,12 @@ func ShowLogo() {
 }
 
 func main() {
+	ShowLogo()
+	fmt.Printf("Version %s - %s (%s)\n", version.Release, version.Commit, version.BuildTime)
+
 	config, err := ReadConfig("./config.yaml")
 	CheckError(err)
 	CheckError(ValidateConfig(config))
-
-	ShowLogo()
-
-	fmt.Printf("Version %s - %s (%s)\n", version.Release, version.Commit, version.BuildTime)
 
 	log.Printf("Starting %s on port %s", appName, config.Server.Port)
 	log.Print("K8s Readiness Check: /ready")
