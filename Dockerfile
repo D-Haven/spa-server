@@ -1,5 +1,5 @@
 FROM golang:1.15 AS builder
-ARG version=1.0.0
+ARG version=0.9.0
 
 WORKDIR /go/src/github.com/D-Haven/spa-server/
 COPY . .
