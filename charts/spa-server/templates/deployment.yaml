@@ -34,19 +34,39 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: http
-              containerPort: 80
+            - name: https
+              containerPort: 8443
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /
-              port: http
+              path: /live
+              port: https
           readinessProbe:
             httpGet:
-              path: /
-              port: http
+              path: /ready
+              port: https
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: config-yaml
+              mountPath: /config.yaml
+            - name: spa-content
+              mountPath: /www/
+            {{- if "spa-server.tls.isValid" }}
+            - name: tls-secrets
+              mountPath: /.tls/
+            {{- end }}
+      volumes:
+        - name: config-yaml
+          configMap:
+            name: spa-server-config
+        - name: spa-content
+          {{- toYaml .Values.content | nindent 10}}
+        {{- if "spa-server.tls.isValid" }}
+        - name: tls-secrets
+          secret:
+            secretName: {{ (index .Values.ingress.tls 0).secretName }}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

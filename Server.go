@@ -143,7 +143,7 @@ func ShowLogo() {
 
 func main() {
 	ShowLogo()
-	fmt.Printf("Version %s - %s (%s)\n", version.Release, version.Commit, version.BuildTime)
+	fmt.Printf("Version: %s Commit: %s Timestamp: %s\n", version.Release, version.Commit, version.BuildTime)
 
 	config, err := ReadConfig("./config.yaml")
 	CheckError(err)

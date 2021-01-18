@@ -1,12 +1,17 @@
 # Default values for spa-server.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+content:
+  # Can be any Kubernetes volume type specification.  The content will
+  # be mounted at /www/ which is where spa-server will look for it.
+  configMap:
+    name: chart-example-configmap
 
 replicaCount: 1
 
 image:
-  repository: nginx
-  pullPolicy: IfNotPresent
+  repository: bloritsch/spa-server
+  pullPolicy: Always # safer but slower
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
@@ -28,7 +33,9 @@ podAnnotations: {}
 podSecurityContext: {}
   # fsGroup: 2000
 
-securityContext: {}
+securityContext:
+  runAsNonRoot: true
+  readOnlyRootFilesystem: true
   # capabilities:
   #   drop:
   #   - ALL
@@ -38,7 +45,7 @@ securityContext: {}
 
 service:
   type: ClusterIP
-  port: 80
+  port: 8443
 
 ingress:
   enabled: false
@@ -47,8 +54,12 @@ ingress:
     # kubernetes.io/tls-acme: "true"
   hosts:
     - host: chart-example.local
-      paths: []
-  tls: []
+      paths:
+        - pathType: Prefix
+          path: /
+  tls:
+    # Requirement: the secret must be "type: kubernetes.io/tls"
+    - secretName: chart-example-tls
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local

@@ -60,3 +60,14 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Validate TLS Secret if it is provided
+*/}}
+{{- define "spa-server.tls.isValid" -}}
+{{- if len .Values.ingress.tls }}
+{{- eq ((lookup "v1" "Secret" (index .Values.ingress.tls 0)).type "kubernetes.io/tls") }}
+{{- else }}
+false
+{{- end }}
+{{- end }}
