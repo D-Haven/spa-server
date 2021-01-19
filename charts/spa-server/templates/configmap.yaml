@@ -9,7 +9,7 @@ data:
       port: 8443
       compress: true
       sitePath: /www
-      {{- if include "spa-server.tls.isValid" . }}
+      {{- if include "spa-server.tls.useTLS" . }}
       tls:
         certificate: /.tls/tls.crt
         key: /.tls/tls.key

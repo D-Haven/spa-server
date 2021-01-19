@@ -41,7 +41,7 @@ spec:
             httpGet:
               path: /live
               port: http
-              {{- if include "spa-server.tls.isValid" . }}
+              {{- if include "spa-server.tls.useTLS" . }}
               scheme: HTTPS
               {{- end }}
             initialDelaySeconds: 5
@@ -50,7 +50,7 @@ spec:
             httpGet:
               path: /ready
               port: http
-              {{- if include "spa-server.tls.isValid" . }}
+              {{- if include "spa-server.tls.useTLS" . }}
               scheme: HTTPS
               {{- end }}
             initialDelaySeconds: 5
@@ -63,7 +63,7 @@ spec:
               subPath: config.yaml
             - name: spa-content
               mountPath: /www/
-            {{- if include "spa-server.tls.isValid" . }}
+            {{- if include "spa-server.tls.useTLS" . }}
             - name: tls-secrets
               mountPath: /.tls/
             {{- end }}
@@ -73,7 +73,7 @@ spec:
             name: spa-server-config
         - name: spa-content
           {{- toYaml .Values.content | nindent 10}}
-        {{- if include "spa-server.tls.isValid" . }}
+        {{- if include "spa-server.tls.useTLS" . }}
         - name: tls-secrets
           secret:
             secretName: {{ (index .Values.ingress.tls 0).secretName }}

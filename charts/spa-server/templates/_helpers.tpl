@@ -62,11 +62,25 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*
+Retrieve requested TLS Secret
+*/}}
+{{- define "spa-server.tls.type" -}}
+{{- if empty (lookup "v1" "Secret" .Release.Namespace (index .Values.ingress.tls 0).secretName) -}}
+missing
+{{- else }}
+{{- (lookup "v1" "Secret" .Release.Namespace (index .Values.ingress.tls 0).secretName).type }}
+{{- end }}
+{{- end }}
+
+{{/*
 Validate TLS Secret if it is provided
 */}}
-{{- define "spa-server.tls.isValid" -}}
-{{- if len .Values.ingress.tls }}
-{{- eq "kubernetes.io/tls" (lookup "v1" "Secret" .Release.Namespace (index .Values.ingress.tls 0).secretName).type }}
+{{- define "spa-server.tls.useTLS" -}}
+{{- if gt (len .Values.ingress.tls) 0 }}
+{{- if not (eq "kubernetes.io/tls" (include "spa-server.tls.type" .)) }}
+{{- cat "Secret" (index .Values.ingress.tls 0).secretName "is" (include "spa-server.tls.type" .) "-- expecting type kubernetes.io/tls" | fail }}
+{{- end }}
+true
 {{- else }}
 false
 {{- end }}
