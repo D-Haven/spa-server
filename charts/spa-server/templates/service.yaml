@@ -8,8 +8,8 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: https
+      targetPort: 8443
       protocol: TCP
-      name: https
+      name: http
   selector:
     {{- include "spa-server.selectorLabels" . | nindent 4 }}

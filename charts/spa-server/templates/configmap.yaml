@@ -5,11 +5,11 @@ metadata:
 data:
   config.yaml: |-
     server:
-      host: {{- (index .Values.ingress.hosts 0).host }}
+      host: {{ (index .Values.ingress.hosts 0).host }}
       port: 8443
       compress: true
       sitePath: /www
-      {{- if len "spa-server.tls.isValid" }}
+      {{- if include "spa-server.tls.isValid" . }}
       tls:
         certificate: /.tls/tls.crt
         key: /.tls/tls.key

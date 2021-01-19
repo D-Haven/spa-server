@@ -66,7 +66,7 @@ Validate TLS Secret if it is provided
 */}}
 {{- define "spa-server.tls.isValid" -}}
 {{- if len .Values.ingress.tls }}
-{{- eq ((lookup "v1" "Secret" (index .Values.ingress.tls 0)).type "kubernetes.io/tls") }}
+{{- eq "kubernetes.io/tls" (lookup "v1" "Secret" .Release.Namespace (index .Values.ingress.tls 0).secretName).type }}
 {{- else }}
 false
 {{- end }}
