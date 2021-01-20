@@ -1,6 +1,6 @@
 # Default values for spa-server.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+
+# Single Page App content
 content:
   # Can be any Kubernetes volume type specification.  The content will
   # be mounted at /www/ which is where spa-server will look for it.
