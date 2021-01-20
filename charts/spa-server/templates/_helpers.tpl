@@ -76,12 +76,5 @@ missing
 Validate TLS Secret if it is provided
 */}}
 {{- define "spa-server.tls.useTLS" -}}
-{{- if gt (len .Values.ingress.tls) 0 }}
-{{- if not (eq "kubernetes.io/tls" (include "spa-server.tls.type" .)) }}
-{{- cat "Secret" (index .Values.ingress.tls 0).secretName "is" (include "spa-server.tls.type" .) "-- expecting type kubernetes.io/tls" | fail }}
-{{- end }}
-true
-{{- else }}
-false
-{{- end }}
+{{- gt (len .Values.ingress.tls) 0 }}
 {{- end }}
