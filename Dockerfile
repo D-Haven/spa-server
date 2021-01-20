@@ -1,4 +1,4 @@
-FROM golang:1.15 AS builder
+FROM goboring/golang:1.15.6b5 AS builder
 
 WORKDIR /go/src/github.com/D-Haven/spa-server/
 COPY . .

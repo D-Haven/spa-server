@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spa-server-config
+data:
+  config.yaml: |-
+    server:
+      host: {{ (index .Values.ingress.hosts 0).host }}
+      port: 8443
+      compress: true
+      sitePath: /www
+      {{- if include "spa-server.tls.useTLS" . }}
+      tls:
+        certificate: /.tls/tls.crt
+        key: /.tls/tls.key
+      {{- end }}
