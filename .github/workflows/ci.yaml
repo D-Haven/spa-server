@@ -23,7 +23,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
       - name: Run helm-docs
-        run: .github/helmdocs.sh
+        run: [".github/helmdocs.sh"]
   kubeval-chart:
     runs-on: ubuntu-latest
     needs:
@@ -44,7 +44,7 @@ jobs:
       - name: Run kubeval
         env:
           KUBERNETES_VERSION: ${{ matrix.k8s }}
-        run: .github/kubeval.sh
+        run: [".github/kubeval.sh"]
   install-chart:
     name: install-chart
     runs-on: ubuntu-latest
