@@ -3,6 +3,16 @@ entries:
   spa-server:
   - apiVersion: v2
     appVersion: 1.0.0
+    created: "2021-01-20T20:52:33.074575229Z"
+    description: A Helm chart for Kubernetes
+    digest: 7406557266151520cf653bc07b8e414a6d14c4417d8a030283eaf6e8172b4ae1
+    name: spa-server
+    type: application
+    urls:
+    - https://github.com/D-Haven/spa-server/releases/download/spa-server-1.0.1/spa-server-1.0.1.tgz
+    version: 1.0.1
+  - apiVersion: v2
+    appVersion: 1.0.0
     created: "2021-01-20T19:55:12.37903146Z"
     description: A Helm chart for Kubernetes
     digest: 4367b34bc26f895653e089b0f2416b4481cc187bb2874a4983fbb6877cfd62f2
