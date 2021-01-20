@@ -61,19 +61,9 @@ Create the name of the service account to use
 {{- end }}
 {{- end }}
 
-{{/*
-Retrieve requested TLS Secret
-*/}}
-{{- define "spa-server.tls.type" -}}
-{{- if empty (lookup "v1" "Secret" .Release.Namespace (index .Values.ingress.tls 0).secretName) -}}
-missing
-{{- else }}
-{{- (lookup "v1" "Secret" .Release.Namespace (index .Values.ingress.tls 0).secretName).type }}
-{{- end }}
-{{- end }}
 
 {{/*
-Validate TLS Secret if it is provided
+Determine if TLS is specified
 */}}
 {{- define "spa-server.tls.useTLS" -}}
 {{- gt (len .Values.ingress.tls) 0 }}
