@@ -24,6 +24,7 @@ import (
 	"github.com/heptiolabs/healthcheck"
 	"golang.org/x/net/context"
 	"gopkg.in/yaml.v3"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -137,21 +138,26 @@ func ValidateOptionalFile(path string) error {
 
 func ShowLogo() {
 	logo := figure.NewFigure(appName, "trek", true)
-	logo.Print()
-	fmt.Println()
+	figure.Write(log.Writer(), logo)
+	_, err := io.WriteString(log.Writer(), "\n")
+	CheckError(err)
 }
 
 func main() {
 	ShowLogo()
-	fmt.Printf("Version: %s Commit: %s Timestamp: %s\n", version.Release, version.Commit, version.BuildTime)
+	log.Printf("Version: %s Commit: %s Timestamp: %s\n", version.Release, version.Commit, version.BuildTime)
+
+	hostname, err := os.Hostname()
+	if err != nil {
+		hostname = "--hostname lookup error: " + err.Error()
+	}
+
+	log.Printf("Server host name: %s", hostname)
+	log.Printf("Configuring %s...", appName)
 
 	config, err := ReadConfig("./config.yaml")
 	CheckError(err)
 	CheckError(ValidateConfig(config))
-
-	log.Printf("Starting %s on port %s", appName, config.Server.Port)
-	log.Print("K8s Readiness Check: /ready")
-	log.Print("K8s Liveness Check: /live")
 
 	fileServer := http.FileServer(http.Dir(config.Server.SitePath))
 	redirectDefault := handlers.NotFoundRedirectHandler(fileServer)
@@ -165,8 +171,8 @@ func main() {
 	health.AddLivenessCheck("go-routinethreshold", healthcheck.GoroutineCountCheck(100))
 
 	multiplexHandler := http.NewServeMux()
-	multiplexHandler.Handle("/live", health)
 	multiplexHandler.Handle("/ready", health)
+	multiplexHandler.Handle("/live", health)
 	multiplexHandler.Handle("/", handler)
 
 	interrupt := make(chan os.Signal, 1)
@@ -187,17 +193,18 @@ func main() {
 		}
 	}()
 
-	log.Printf("%s started", appName)
+	log.Printf("%s started, listening on %s", appName, server.Addr)
+	log.Print("K8s Readiness Check: /ready")
+	log.Print("K8s Liveness Check: /live")
 
 	killSignal := <-interrupt
 	switch killSignal {
 	case os.Interrupt:
-		log.Print("Received SIGINT...")
+		log.Print("Received OS Interrupt")
 	case syscall.SIGTERM:
-		log.Print("Received SIGTERM...")
+		log.Print("Received Termination Signal")
 	}
 
 	log.Printf("%s is shutting down...", appName)
 	CheckError(server.Shutdown(context.Background()))
-	log.Print("Done")
 }

@@ -11,5 +11,9 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args: ['{{ include "spa-server.fullname" . }}:{{ .Values.service.port }}']
+      {{- if include "spa-server.tls.useTLS" . -}}
+      args: ['https://{{ include "spa-server.fullname" . }}:{{ .Values.service.port }}']
+      {{- else }}
+      args: ['http://{{ include "spa-server.fullname" . }}:{{ .Values.service.port }}']
+      {{- end }}
   restartPolicy: Never
