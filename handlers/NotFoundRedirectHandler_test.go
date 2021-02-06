@@ -18,28 +18,27 @@ package handlers
 
 import (
 	"io"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
-func CheckError(err error) {
+func CheckError(t *testing.T, err error) {
 	if err != nil {
-		log.Fatal(err)
+		t.Fatal(err)
 	}
 }
 
 func TestWrapperRedirectsToRootIfNotFound(t *testing.T) {
 	req, err := http.NewRequest("GET", "/health-check", nil)
-	CheckError(err)
+	CheckError(t, err)
 
 	rr := httptest.NewRecorder()
 
 	handler := NotFoundRedirectHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		_, err = io.WriteString(w, "{}")
-		CheckError(err)
+		CheckError(t, err)
 	}))
 
 	handler.ServeHTTP(rr, req)
@@ -55,7 +54,7 @@ func TestWrapperRedirectsToRootIfNotFound(t *testing.T) {
 
 func TestWrapperPassesFoundPathsUnharmed(t *testing.T) {
 	req, err := http.NewRequest("GET", "/test.txt", nil)
-	CheckError(err)
+	CheckError(t, err)
 
 	content := "This is a test"
 	rr := httptest.NewRecorder()
@@ -63,7 +62,7 @@ func TestWrapperPassesFoundPathsUnharmed(t *testing.T) {
 	handler := NotFoundRedirectHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		_, err = io.WriteString(w, content)
-		CheckError(err)
+		CheckError(t, err)
 	}))
 
 	handler.ServeHTTP(rr, req)
@@ -89,14 +88,14 @@ func TestWrapperAllowsNotFoundForSpecialFiles(t *testing.T) {
 	for _, path := range protectedPaths {
 		t.Run(path, func(t *testing.T) {
 			req, err := http.NewRequest("GET", path, nil)
-			CheckError(err)
+			CheckError(t, err)
 
 			rr := httptest.NewRecorder()
 
 			handler := NotFoundRedirectHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusNotFound)
 				_, err = io.WriteString(w, "{}")
-				CheckError(err)
+				CheckError(t, err)
 			}))
 
 			handler.ServeHTTP(rr, req)

@@ -1,8 +1,6 @@
 server:
-  host:
   port: 8443
-  compress: true
   sitePath: ./www
   tls:
-    certificate: server.crt
-    key: server.key
+    certificate: tls.crt
+    key: tls.key

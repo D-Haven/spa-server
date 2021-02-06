@@ -16,6 +16,11 @@
 
 package version
 
+import (
+	"encoding/json"
+	"io"
+)
+
 var (
 	// Release is the semantic version of the server
 	Release = "unset"
@@ -24,3 +29,30 @@ var (
 	// Commit is the last commit hash when the server was built
 	Commit = "unset"
 )
+
+type version struct {
+	Release   string `json:"release"`
+	BuildTime string `json:"build-time"`
+	Commit    string `json:"commit"`
+}
+
+func Print(writer io.Writer) error {
+	ver := version{
+		Release:   Release,
+		BuildTime: BuildTime,
+		Commit:    Commit,
+	}
+
+	versionJson, err := json.MarshalIndent(&ver, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	_, err = writer.Write(versionJson)
+	if err != nil {
+		return err
+	}
+
+	_, err = io.WriteString(writer, "\n")
+	return err
+}
