@@ -1,5 +1,4 @@
 # SPA server
-[![Github Pages](https://img.shields.io/badge/helm-charts-blue)](https://d-haven.github.io/spa-server/)
 ![Go](https://github.com/D-Haven/spa-server/workflows/Go/badge.svg)
 ![CodeQL](https://github.com/D-Haven/spa-server/workflows/CodeQL/badge.svg)
 
@@ -17,6 +16,3 @@ COPY server.crt /
 COPY server.key /
 ADD www /www/
 ```
-## Use Helm
-
-_work in progress_
