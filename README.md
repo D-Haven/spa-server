@@ -1,4 +1,4 @@
-# SPA server
+# ![SPA](favicon.svg) SPA server
 ![Go](https://github.com/D-Haven/spa-server/workflows/Go/badge.svg)
 ![CodeQL](https://github.com/D-Haven/spa-server/workflows/CodeQL/badge.svg)
 
