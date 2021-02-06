@@ -42,9 +42,6 @@ type Config struct {
 		// Port is the local machine TCP Port to bind the HTTP Server to
 		Port string `yaml:"port"`
 
-		// Compress is a flag for if results should be GZip compressed
-		Compress bool `yaml:"compress"`
-
 		// SitePath string is the location to serve up static files
 		SitePath string `yaml:"sitePath"`
 
@@ -70,7 +67,6 @@ func ReadConfig(configPath string) (*Config, error) {
 		log.Println("No config file, will use default settings")
 
 		config.Server.Port = "8080"
-		config.Server.Compress = false
 		config.Server.SitePath = "./www"
 
 		return config, nil
@@ -162,10 +158,6 @@ func main() {
 	fileServer := http.FileServer(http.Dir(config.Server.SitePath))
 	redirectDefault := handlers.NotFoundRedirectHandler(fileServer)
 	handler := redirectDefault
-
-	if config.Server.Compress {
-		handler = handlers.GzipHandler(redirectDefault)
-	}
 
 	health := healthcheck.NewHandler()
 	health.AddLivenessCheck("go-routinethreshold", healthcheck.GoroutineCountCheck(100))

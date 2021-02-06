@@ -33,6 +33,12 @@ var protectedPaths = []string{
 	"/search.xml",
 }
 
+type NotFoundRedirectWrapper struct {
+	http.ResponseWriter // We embed http.ResponseWriter
+	status              int
+	path                string
+}
+
 func isIn(value string, array []string) bool {
 	for _, v := range array {
 		if v == value {
@@ -57,12 +63,6 @@ func NotFoundRedirectHandler(handler http.Handler) http.HandlerFunc {
 			http.Redirect(writer, request, "/", http.StatusSeeOther)
 		}
 	}
-}
-
-type NotFoundRedirectWrapper struct {
-	http.ResponseWriter // We embed http.ResponseWriter
-	status              int
-	path                string
 }
 
 func (wrapper *NotFoundRedirectWrapper) WriteHeader(status int) {
