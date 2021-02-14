@@ -22,6 +22,8 @@ import (
 	"testing"
 )
 
+const validPath = "./version"
+
 func Check(t *testing.T, field string, expected string, actual string) {
 	if expected != actual {
 		t.Fatalf("%s expected %s but received %s", field, expected, actual)
@@ -87,7 +89,7 @@ func TestReadInvalidConfigFromYaml(t *testing.T) {
 
 func TestValidateConfigSitePathIsDir(t *testing.T) {
 	config := &Config{}
-	config.Server.SitePath = "./version"
+	config.Server.SitePath = validPath
 
 	err := ValidateConfig(config)
 	if err != nil {
@@ -117,7 +119,7 @@ func TestValidateConfigSitePathDoesNotExist(t *testing.T) {
 
 func TestValidateConfigIfKeySpecifiedCertIsRequired(t *testing.T) {
 	config := &Config{}
-	config.Server.SitePath = "./version"
+	config.Server.SitePath = validPath
 	config.Server.TLS.KeyFile = "specified.pem"
 
 	err := ValidateConfig(config)
@@ -128,7 +130,7 @@ func TestValidateConfigIfKeySpecifiedCertIsRequired(t *testing.T) {
 
 func TestValidateConfigIfCertSpecifiedKeyIsRequired(t *testing.T) {
 	config := &Config{}
-	config.Server.SitePath = "./version"
+	config.Server.SitePath = validPath
 	config.Server.TLS.CertFile = "specified.pem"
 
 	err := ValidateConfig(config)
@@ -139,13 +141,13 @@ func TestValidateConfigIfCertSpecifiedKeyIsRequired(t *testing.T) {
 
 func TestValidateConfigWithBothCertAndKeyValidFiles(t *testing.T) {
 	config := &Config{}
-	config.Server.SitePath = "./version"
+	config.Server.SitePath = validPath
 	config.Server.TLS.CertFile = "./LICENSE.txt"
 	config.Server.TLS.KeyFile = "./CONTRIBUTING.md"
 
 	err := ValidateConfig(config)
 	if err != nil {
-		t.Fatalf("Should be a valid configuration since files exist")
+		t.Fatalf("Should be a valid configuration since files exist: %s", err)
 	}
 }
 
