@@ -55,15 +55,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fileServer := http.FileServer(http.Dir(config.Server.SitePath))
-	redirectDefault := handlers.NotFoundRedirectHandler(fileServer)
-
 	health := healthcheck.NewHandler()
 	health.AddLivenessCheck("go-routinethreshold", healthcheck.GoroutineCountCheck(100))
 
 	multiplexHandler := http.NewServeMux()
 	multiplexHandler.Handle("/ready", health)
 	multiplexHandler.Handle("/live", health)
+
+	fileServer := http.FileServer(http.Dir(config.Server.SitePath))
+	redirectDefault := handlers.NotFoundRedirectHandler(fileServer)
 	multiplexHandler.Handle("/", redirectDefault)
 
 	interrupt := make(chan os.Signal, 1)
