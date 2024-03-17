@@ -9,5 +9,5 @@ require (
 	github.com/stretchr/testify v1.6.1 // indirect
 	golang.org/x/net v0.0.0-20201224014010-6772e930b67b
 	gopkg.in/DATA-DOG/go-sqlmock.v1 v1.3.0 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
+	gopkg.in/yaml.v3 v3.0.0
 )
